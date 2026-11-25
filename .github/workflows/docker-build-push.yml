@@ -82,7 +82,8 @@ jobs:
           SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
         with:
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          # PRs don't log into the registry, so they can't write the cache
+          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME) || '' }}
           build-args: |
             GIT_SHA=${{ github.sha }}
           context: .
